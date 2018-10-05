@@ -1,23 +1,20 @@
-Object.prototype.renameProperty = function (oldName, newName) {
-   if (this.hasOwnProperty(oldName)) {
-       this[newName] = this[oldName];
-       delete this[oldName];
-   }
-   return this;
-};
-
 class molecule {
     constructor(name) {
         this.name = name;
         this.branch = [];
+        this.counter = 0;
     }
 
     brancher() {
         for(let i = 0; i < arguments.length; i++) {
             let carbonQty = arguments[i];
             this.branch.push({branchId: i+1});
+            this.branch[i]['atomicStructure'] = [];
             for(let j = 0; j < carbonQty; j++) {
-                this.branch[i]['C'+(j+1)] = {carbonBonds: 'unbonded'};
+                let counter = this.counter;
+                window['C'+counter]= new atom('C', this.counter);
+                this.branch[i]['atomicStructure'].push(window['C'+counter]);
+                this.counter++;
             }
         }
     }
@@ -25,39 +22,37 @@ class molecule {
     bounder() {
         for(let i = 0; i <arguments.length; i++) {
             let bonder = arguments[i];
-            this.branch[bonder[1]-1]['C'+bonder[0]].carbonBonds = (('Branch'+bonder[3]) + ' ' + ('C' + bonder[2]));
-            this.branch[bonder[3]-1]['C'+bonder[2]].carbonBonds = (('Branch'+bonder[1]) + ' ' + ('C' + bonder[0]));
+            this.branch[bonder[1]-1].atomicStructure[bonder[0]-1].carbonBonds = (('Branch'+bonder[3]) + ' ' + ('C' + bonder[2]));
+            this.branch[bonder[3]-1].atomicStructure[bonder[2]-1].carbonBonds = (('Branch'+bonder[1]) + ' ' + ('C' + bonder[0]));
         }
     }    
 
     mutate() {
         for(let i = 0; i <arguments.length; i++) {
             let mutator = arguments[i];
-            this.branch[mutator[1]-1].renameProperty(['C'+mutator[0]], mutator[2]);
+            let mutatorId = this.branch[mutator[1]-1].atomicStructure[mutator[0]].id;
+            window[mutator[2]+mutatorId] = new atom(mutator[2], mutatorId);
+            this.branch[mutator[1]-1].atomicStructure.splice(mutator[0], 1,  window[mutator[2]+mutatorId]); 
         }
     }
     
     add() {
         for(let i = 0; i <arguments.length; i++) {
             let adder = arguments[i];
-            if(this.branch[adder[1]-1]['C'+adder[0]]['nonCarbonBonds'] === undefined) {
-                this.branch[adder[1]-1]['C'+adder[0]]['nonCarbonBonds'] = adder[2];
-            }
-            else {
-                this.branch[adder[1]-1]['C'+adder[0]]['nonCarbonBonds'] += adder[2];
-            }
+            let counter = this.counter;
+            window[adder[2]+counter]= new atom(adder[2], this.counter);
+            this.branch[adder[1]-1].atomicStructure.splice(adder[0],0, window[adder[2]+counter]);
+            this.counter++;
         }
     }
 
     add_chaining() {
         for(let i = 2; i <arguments.length; i++) {
             let chainer = arguments[i];
-            if(this.branch[arguments[1]-1]['C'+arguments[0]]['nonCarbonBonds'] === undefined) {
-                this.branch[arguments[1]-1]['C'+arguments[0]]['nonCarbonBonds'] = ('-'+chainer);
-            }
-            else {
-                this.branch[arguments[1]-1]['C'+arguments[0]]['nonCarbonBonds'] += ('-'+chainer);
-            }
+            let counter = this.counter;
+            window[chainer+counter]= new atom(chainer, this.counter);
+            this.branch[arguments[1]-1].atomicStructure.splice((arguments[0]+i-2),0, window[chainer+counter]);
+            this.counter++;
         }
     }
 
@@ -98,11 +93,7 @@ class atom {
 let m = new molecule('steve');
 m.brancher(3, 4, 11);
 m.bounder([7,3,2,1]);
-console.log(m.branch);
 m.mutate([7,3,'H']);
-console.log(m.branch);
 m.add([2,1,'H']);
-console.log(m.branch);
 m.add_chaining(2,2,'H','S','F');
 console.log(m.branch);
-
