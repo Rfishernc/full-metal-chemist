@@ -3,6 +3,9 @@ class molecule {
         this.name = name;
         this.branch = [];
         this.counter = 0;
+        this.formula = '';
+        this.molecularWeight = '';
+        this.atoms = '';
     }
 
     brancher() {
@@ -56,13 +59,26 @@ class molecule {
         }
     }
 
-    closer() {
+    
 
+    closer() {
+        function valenceSummation() {
+            let availableValence = 0;
+            for(let i = 0; i < this.branch.length; i++) {
+                for(let j = 0; j < this.branch[i].atomicStructure.length; j++) {
+                    availableValence += this.branch[i].atomicStructure[j].valence;
+                }
+            }
+            return availableValence;
+        }
+        let boundValence = valenceSummation.bind(this);
+        this.availableValence = boundValence();
     }
 
     unlock() {
 
     }
+
 }
 
 class atom {
@@ -97,3 +113,5 @@ m.mutate([7,3,'H']);
 m.add([2,1,'H']);
 m.add_chaining(2,2,'H','S','F');
 console.log(m.branch);
+m.closer();
+console.log(m);
