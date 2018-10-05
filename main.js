@@ -70,6 +70,27 @@ class molecule {
     }
 }
 
+class atom {
+    constructor(element, id) {
+        this.element = element;
+        this.id = id;
+        switch(element) {
+            case 'H': this.valence =1; this.weight =1; break;
+            case 'B': this.valence =3; this.weight =10.8; break;
+            case 'C': this.valence =4; this.weight =12; this.carbonBonds = 'unbonded'; break;
+            case 'N': this.valence =3; this.weight =14; break;
+            case 'O': this.valence =2; this.weight =16; break;
+            case 'F': this.valence =1; this.weight =19; break;
+            case 'Mg': this.valence =2; this.weight =24.3; break;
+            case 'P': this.valence =3; this.weight =31; break;
+            case 'S': this.valence =2; this.weight =32.1; break;
+            case 'Cl': this.valence =1; this.weight =35.5; break;
+            case 'Br': this.valence =1; this.weight =80; break;
+            default: break;
+        }
+    }
+}
+
 // Symbol:           H     B     C     N     O     F    Mg     P     S    Cl    Br
 // Valence number:   1     3     4     3     2     1     2     3     2     1     1
 // Atomic weight:  1.0  10.8  12.0  14.0  16.0  19.0  24.3  31.0  32.1  35.5  80.0  (in g/mol)
