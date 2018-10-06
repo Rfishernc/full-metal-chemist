@@ -72,20 +72,34 @@ class molecule {
         function valenceSummation() {
             let availableValence = 0;
             for(let i = 0; i < this.branch.length; i++) {
+                this.branch[i].valence = 0;
                 for(let j = 0; j < this.branch[i].atomicStructure.length; j++) {
                     availableValence += this.branch[i].atomicStructure[j].valence;
+                    this.branch[i].valence += this.branch[i].atomicStructure[j].valence;
                 }
             }
             return availableValence;
         }
         let boundValence = valenceSummation.bind(this);
         this.availableValence = boundValence();
+        let remover = 0;
+        for(let i = 0; i < this.branch.length; i++) {
+            remover += this.branch[i].atomicStructure.length * 2 - 2;
+            this.branch[i].valence -= this.branch[i].atomicStructure.length * 2 - 2;
+            for(let j = 0; j < this.branch[i].atomicStructure.length; j++) {
+                if(this.branch[i].atomicStructure.carbonBonds !== 'unbonded' && this.branch[i].atomicStructure.element === 'carbon') {
+                    remover += 1;
+                    this.branch[i].valence -= 1;
+                }               
+            }
+        }
+        this.availableValence = this.availableValence - remover;
     }
 
     brancher() {
         for(let i = 0; i < arguments.length; i++) {
             let carbonQty = arguments[i];
-            this.branch.push({branchId: i+1});
+            this.branch.push({branchId: i+1, valence: 0});
             this.branch[i]['atomicStructure'] = [];
             for(let j = 0; j < carbonQty; j++) {
                 let counter = this.counter;
@@ -142,6 +156,14 @@ class molecule {
 
     closer() {
         this.propertySetter();
+        let counter = this.counter;
+        window['H'+counter]= new atom('H', this.counter);
+        for(let i = 0; i < this.branch.length; i++) {
+            for(let j = 0; j < this.branch[i].valence; j++) {
+                this.branch[i].atomicStructure.push(window[counter]);
+                this.counter++;
+            }
+        }
     }
 
     unlock() {
@@ -184,29 +206,3 @@ m.add_chaining(2,2,'H','S','F');
 console.log(m.branch);
 m.closer();
 console.log(m);
-
-// propertySetter() {
-//     function weightSummation() {
-//     let molecularWeight = 0;
-//     for(let i = 0; i < this.branch.length; i++) {
-//         for(let j = 0; j < this.branch[i].atomicStructure.length; j++) {
-//             molecularWeight += this.branch[i].atomicStructure[j].weight;
-//         }
-//     }
-//     return molecularWeight;
-// }
-// let boundWeight = weightSummation.bind(this);
-//         this.molecularWeight = boundWeight();
-
-// function formulaSummation() {
-//     let formula = 0;
-//     for(let i = 0; i < this.branch.length; i++) {
-//         for(let j = 0; j < this.branch[i].atomicStructure.length; j++) {
-//             formula += this.branch[i].atomicStructure[j].element;
-//         }
-//     }
-//     return formula;
-// }
-// let boundFormula = formulaSummation.bind(this);
-//         this.formula = boundFormula();
-// }
