@@ -156,18 +156,24 @@ class molecule {
 
     closer() {
         this.propertySetter();
+        let hydrogener = 'Hydrogen';
         let counter = this.counter;
-        window['H'+counter]= new atom('H', this.counter);
+        window[hydrogener+counter]= new atom('H', this.counter);
         for(let i = 0; i < this.branch.length; i++) {
             for(let j = 0; j < this.branch[i].valence; j++) {
-                this.branch[i].atomicStructure.push(window[counter]);
+                this.branch[i].atomicStructure.push(window[hydrogener+counter]);
                 this.counter++;
             }
         }
     }
 
     unlock() {
-
+        for(let i = 0; i < this.branch.length; i++) {
+            for(let j = 0; j < this.branch[i].valence; j++) {
+                this.branch[i].atomicStructure.pop();
+            }
+        }
+        this.propertySetter();
     }
 
 }
@@ -197,12 +203,13 @@ class atom {
 // Valence number:   1     3     4     3     2     1     2     3     2     1     1
 // Atomic weight:  1.0  10.8  12.0  14.0  16.0  19.0  24.3  31.0  32.1  35.5  80.0  (in g/mol)
 
-let m = new molecule('steve');
+let m = new molecule('rich');
 m.brancher(3, 4, 11);
 m.bounder([7,3,2,1]);
 m.mutate([7,3,'H']);
 m.add([2,1,'H']);
 m.add_chaining(2,2,'H','S','F');
-console.log(m.branch);
 m.closer();
+m.unlock();
 console.log(m);
+console.log(m.branch);
